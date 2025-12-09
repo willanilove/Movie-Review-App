@@ -38,6 +38,10 @@ def create_user_route():
 
     # Open a session to talk to the db
     session = Session()
+    
+    existing_user = session.query(User).filter_by(username=email).first()
+    if existing_user:
+        return {"error": "email already exists"}, 409
 
     try:
         # Create a new User object with the provided data
