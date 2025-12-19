@@ -1,0 +1,28 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #dde0e3;
+  min-height: 100vh;
+}
+
+.footer {
+  padding: 40px 20px;
+  background-color: white;
+  border-top: 1px solid #c5c8cc;
+}
+
+.inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.links {
+  display: flex;
+  gap: 15px;
+}
