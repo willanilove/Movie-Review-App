@@ -1,8 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from models import Session, Base, engine, User, Movie, Review
 
 # When the app starts, check if the tables are there
-# It won’t delete anything, just adds any missing ones
+# Don't delete anything, just add any missing ones
 # Creates all tables from the classes in models.py
 Base.metadata.create_all(engine)
 
@@ -14,8 +14,9 @@ def main_route():
 
 @app.route("/status")
 def status_route():
-    return {"message": "Server is up"}, 200
+    return {"message": "Server is up"}
 
+# ------- USER ROUTES -------
 # Create a new user
 # Needs JSON with username, email & password
 @app.route("/users", methods=["POST"])
@@ -49,64 +50,78 @@ def create_user_route():
     if existing_email:
         return {"error": "email already exists"}, 409
 
-    try:
-        # Create a new User object with the provided data
-        new_user = User(
-            username=username,
-            email=email,
-            password=password
-        )
+    # Create a new User object with the provided data
+    new_user = User(
+        username=username,
+        email=email,
+        password=password
+    )
 
-        # Add the user to the session
-        session.add(new_user)
+    # Add the user to the session
+    session.add(new_user)
 
-        # Save the new user to the db
-        session.commit()
+    # Save the new user to the db
+    session.commit()
 
-        # Send back the new user as JSON
-        return jsonify(new_user.to_dict()), 201
-
-    except Exception as e:
-        # If something fails, undo the changes
-        session.rollback()
-        return {"error": str(e)}, 500
-
-    finally:
-        # Always close the session
-        session.close()
+    # Send back the new user as JSON
+    return new_user.to_dict()
 
 # Get all users
 @app.route("/users", methods=["GET"])
 def list_users_route():
     session = Session()
 
-    try:
-        # Ask the db for all users
-        users = session.query(User).all()
+    # Ask the db for all users
+    users = session.query(User).all()
 
-        # Convert users to list of dictionaries
-        users_list = []
-        for u in users:
-            users_list.append(u.to_dict())
+    # Convert users to list of dictionaries
+    users_list = []
+    for u in users:
+        users_list.append(u.to_dict())
 
-        # Send back the list as JSON
-        return jsonify(users_list), 200
+    # Send back the list as JSON
+    return users_list
 
-    except Exception as error:
-        # Convert the error into a string so it can be shown in JSON
-        error_message = str(error)
+# Get 1 user by id
+@app.route("/users/<int:userId>", methods=["GET"])
+def get_user_by_id(userId):
+    session = Session()
+    user = session.query(User).filter_by(id=userId).first()
+    if not user:
+        return {"error": "User not found"}, 404
+    response = user.to_dict()
+    return response
 
-        # Build a dict with the error message
-        response = {
-            "error": error_message
-        }
+# Update a user by id
+@app.route("/users/<int:userId>", methods=["PUT"])
+def update_user_by_id(userId):
+    # Get JSON data from the request
+    data = request.get_json()
 
-        return response, 500
+    # Open a session to talk to the db
+    session = Session()
 
-    finally:
-        # Always close the session
-        session.close()
+    # Try to find the user
+    user = session.query(User).filter_by(id=userId).first()
+    if not user:
+        return {"error": "User not found"}, 404
 
+    # Update fields if provided
+    if "username" in data:
+        user.username = data["username"]
+    if "email" in data:
+        user.email = data["email"]
+    if "password" in data:
+        user.password = data["password"]
+
+    # Save changes
+    session.commit()
+
+    # Return updated user as JSON
+    response = user.to_dict()
+    return response
+
+# ------- MOVIE ROUTES -------
 # Create a new movie
 # Needs JSON with title, poster_url & description
 @app.route("/movies", methods=["POST"])
@@ -130,66 +145,59 @@ def create_movie_route():
     # Open a session to talk to the db
     session = Session()
 
-    try:
-        # Create a new Movie object with the provided data
-        new_movie = Movie(
-            title=title,
-            poster_url=poster_url,
-            description=description
-        )
+    # Create a new Movie object with the provided data
+    new_movie = Movie(
+        title=title,
+        poster_url=poster_url,
+        description=description
+    )
 
-        # Add the movie to the session
-        session.add(new_movie)
+    # Add the movie to the session
+    session.add(new_movie)
 
-        # Save the new movie to the db
-        session.commit()
+    # Save the new movie to the db
+    session.commit()
 
-        # Send back the new movie as JSON
-        return jsonify(new_movie.to_dict()), 201
-
-    except Exception as error:
-        # Undo the changes so the db stays clean
-        session.rollback()
-
-        # Convert the error into a string so it can be shown in JSON
-        error_message = str(error)
-
-        # Build a dict with the error message
-        response = {
-            "error": error_message
-        }
-
-        return response, 500
-
-    finally:
-        # Always close the session
-        session.close()
+    # Send back the new movie as JSON
+    return new_movie.to_dict()
 
 # Get all movies
 @app.route("/movies", methods=["GET"])
 def list_movies_route():
     session = Session()
-    try:
-        # Ask the db for all movies
-        movies = session.query(Movie).all()
 
-        # Convert movies to list of dictionaries
-        movies_list = []
-        for m in movies:
-            movies_list.append(m.to_dict())
+    # Ask the db for all movies
+    movies = session.query(Movie).all()
 
-        # Send back the list as JSON
-        return jsonify(movies_list), 200
+    # Convert movies to list of dictionaries
+    movies_list = []
+    for m in movies:
+        movies_list.append(m.to_dict())
 
-    except Exception as error:
-        error_message = str(error)
-        response = {"error": error_message}
-        return response, 500
+    # Send back the list as JSON
+    return movies_list
 
-    finally:
-        session.close()
-        
-        # Create a new review
+# Delete a movie by id
+@app.route("/movies/<int:movieId>", methods=["DELETE"])
+def delete_movie_route(movieId):
+    # Open a session to talk to the db
+    session = Session()
+
+    # Try to find the movie with this id
+    movie = session.query(Movie).filter_by(id=movieId).first()
+    if not movie:
+        return {"error": "Movie not found"}
+
+    # Delete the movie and save changes
+    session.delete(movie)
+    session.commit()
+
+    # Return the deleted movie as JSON
+    response = movie.to_dict()
+    return response
+
+# ------- REVIEW ROUTES -------
+# Create a new review
 # Needs JSON with user_id, movie_id, comment & rating
 @app.route("/reviews", methods=["POST"])
 def create_review_route():
@@ -213,32 +221,19 @@ def create_review_route():
 
     session = Session()
 
-    try:
-        # Create a new Review object
-        new_review = Review(
-            user_id=user_id,
-            movie_id=movie_id,
-            comment=comment,
-            rating=rating
-        )
+    # Create a new Review object
+    new_review = Review(
+        user_id=user_id,
+        movie_id=movie_id,
+        comment=comment,
+        rating=rating
+    )
 
-        # Add the review to the session
-        session.add(new_review)
+    session.add(new_review)
+    session.commit()
 
-        # Save the new review to the db
-        session.commit()
-
-        # Send back the new review as JSON
-        return jsonify(new_review.to_dict()), 201
-
-    except Exception as error:
-        # Undo the changes so the db stays clean
-        session.rollback()
-        return {"error": str(error)}, 500
-
-    finally:
-        # Always close the session
-        session.close()
+    # Send back the new review as JSON
+    return new_review.to_dict()
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5001, debug=True)

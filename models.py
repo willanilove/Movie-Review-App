@@ -10,7 +10,7 @@ Base = declarative_base()
 # Session lets us talk to the db
 Session = sessionmaker(bind=engine)
 
-# USER MODEL
+# ------- USER MODEL -------
 class User(Base):
     __tablename__ = "users"
 
@@ -41,9 +41,8 @@ class User(Base):
             "password": self.password,
         }
 
-# POST MODEL:
+# ------- POST MODEL -------
 class Post(Base):
-    
     __tablename__ = "posts"
 
     # id is the primary key for posts.
@@ -76,7 +75,7 @@ class Post(Base):
             "created_at": self.created_at,
         }
 
-# MOVIE MODEL:
+# ------- MOVIE MODEL -------
 class Movie(Base):
     __tablename__ = "movies"
 
@@ -101,7 +100,7 @@ class Movie(Base):
             "description": self.description,
         }
 
-# REVIEW MODEL:
+# ------- REVIEW MODEL -------
 class Review(Base):
     __tablename__ = "reviews"
 
