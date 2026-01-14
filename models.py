@@ -111,7 +111,8 @@ class Review(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
     # movie_id links the review to a movie
-    movie_id: Mapped[int] = mapped_column(ForeignKey("movies.id"), nullable=False)
+    movie_id: Mapped[int] = mapped_column(nullable=False)
+
 
     # comment is the text of the review
     comment: Mapped[str] = mapped_column(nullable=False)
@@ -127,7 +128,7 @@ class Review(Base):
 
     # Relationship: each review belongs to 1 user & 1 movie
     user = relationship("User")
-    movie = relationship("Movie")
+    # movie = relationship("Movie")
 
     # Helper method: turns a Review object into a dict
     def to_dict(self):

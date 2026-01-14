@@ -1,21 +1,22 @@
-import React from "react";
-import { Box, Flex, Group, Anchor, Button, Image } from "@mantine/core";
+import React, { useEffect, useState } from "react";
+import { Box, Flex, Group, Anchor, Button, Image, Menu, Avatar } from "@mantine/core";
 import reeltalkLogo from "./assets/reeltalk-logo-removebg-preview.png";
 import { Link } from "react-router-dom";
 
-// Color variables to match my logo
+// Colors used in the navigation bar
 const PRIMARY_NAV_BLUE = "#354760";
 const ACCENT_STAR_YELLOW = "#FFC72C";
 
+// List of navigation links for the main menu
 const navLinks = [
   { name: "Home", href: "/" },
-  { name: "Movie Spotlight", href: "/spotlight" },
-  { name: "Submit a Film", href: "/submit" },
+  { name: "Submit a Film", href: "/submit-a-film" },
+  { name: "Review a Movie", href: "/review-a-movie" },
   { name: "My Reel", href: "/my-reel" },
 ];
 
 function Navbar() {
-  // Style obj for the nav links
+  // Style obj for each nav links
   const linkStyle = {
     fontSize: "16px",
     fontWeight: 500,
@@ -24,8 +25,33 @@ function Navbar() {
     transition: "color 0.2s ease",
   };
 
+  // Login user
+  const [user, setUser] = useState(null);
+
+  // Check localstorage to see if someone is already logged in
+  useEffect(() => {
+    function loadUser() {
+      try {
+        const stored = localStorage.getItem("user");
+        setUser(stored ? JSON.parse(stored) : null);
+      } catch (err) {
+        console.log("Error loading user:", err);
+        setUser(null);
+      }
+    }
+
+    loadUser();
+
+    window.addEventListener("storage", loadUser);
+    return () => window.removeEventListener("storage", loadUser);
+  }, []);
+
+  function handleLogout() {
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+  }
+
   return (
-    /* Outer container for the navbar (white background & subtle shadow) */
     <Box
       component="nav"
       bg="white"
@@ -38,12 +64,10 @@ function Navbar() {
       }}
     >
       <Flex justify="space-between" align="center" h={60}>
-        {/* Left side: Logo & Nav links grouped together */}
+        {/* Left side: Logo & nav links */}
         <Group spacing="lg" align="center">
-          {/* Renders the logo image */}
           <Image src={reeltalkLogo} alt="ReelTalk Logo" h="auto" w={380} fit="contain" />
 
-          {/* Desktop Nav: looping through my links array */}
           <Group spacing="xl" visibleFrom="sm">
             {navLinks.map((link) => (
               <Anchor key={link.name} component={Link} to={link.href} style={linkStyle}>
@@ -53,31 +77,43 @@ function Navbar() {
           </Group>
         </Group>
 
-        {/* Right side: Login & Signup buttons */}
+        {/* ⭐ Right side: Conditional rendering */}
         <Group spacing="md">
-          {/* Sign In Button (Yellow background) */}
-          <Button
-            component={Link}
-            to="/login"
-            style={{
-              backgroundColor: ACCENT_STAR_YELLOW,
-              color: PRIMARY_NAV_BLUE,
-            }}
-          >
-            Sign In
-          </Button>
+          {user ? (
+            <Menu shadow="md" width={200}>
+              <Menu.Target>
+                <Avatar radius="xl" style={{ cursor: "pointer" }} />
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Label>{user.username}</Menu.Label>
+                <Menu.Item onClick={handleLogout}>Log Out</Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          ) : (
+            <>
+              <Button
+                component={Link}
+                to="/login"
+                style={{
+                  backgroundColor: ACCENT_STAR_YELLOW,
+                  color: PRIMARY_NAV_BLUE,
+                }}
+              >
+                Sign In
+              </Button>
 
-          {/* Sign Up Button (Navy background) */}
-          <Button
-            component={Link}
-            to="/signup"
-            style={{
-              backgroundColor: PRIMARY_NAV_BLUE,
-              color: "white",
-            }}
-          >
-            Sign Up
-          </Button>
+              <Button
+                component={Link}
+                to="/signup"
+                style={{
+                  backgroundColor: PRIMARY_NAV_BLUE,
+                  color: "white",
+                }}
+              >
+                Get Started
+              </Button>
+            </>
+          )}
         </Group>
       </Flex>
     </Box>

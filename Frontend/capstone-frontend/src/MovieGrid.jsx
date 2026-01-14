@@ -1,60 +1,112 @@
 import React, { useEffect, useState } from "react";
 import { Card, Image, Text, Button, SimpleGrid, Loader } from "@mantine/core";
+import { Link } from "react-router-dom";
 
-function MovieGrid({ query }) {
-  // State for movies & loading spinner
+function MovieGrid({ query, filters }) {
+  // State for movies & loading indicator
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const API_KEY = "cc3900e52f180a5eabb5a0f32bbc48e4";
 
+  // Fetch movies whenever the search query changes
   useEffect(() => {
-    setLoading(true); // show loader while fetching
+    // Start loading before making the request
+    setLoading(true);
 
-    // If query is empty show popular movies
-    // If query has text search API
-    const url = query
-      ? `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&query=${query}`
-      : `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=1`;
+    // Decide which URL to use based on whether the user typed something
+    let url = "";
 
+    if (query) {
+      url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&query=${query}`;
+    } else {
+      url = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=1`;
+    }
+
+    // Fetch the movies from TMDb
     fetch(url)
-      // Convert the response to JSON format
       .then((response) => response.json())
       .then((data) => {
-        // Step 3: Save movies into state if we get results
-        if (data.results) {
-          setMovies(data.results); // save movies into state
+        // Make sure results exist before updating state
+        if (data && data.results) {
+          setMovies(data.results);
         }
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching movies:", error);
-        setLoading(false); // stop loading even if there’s an error
+        console.log("Error fetching movies:", error);
+        setLoading(false);
       });
-  }, [query]); // runs again whenever query changes
+  }, [query]);
 
+  // Filters to the movie list
+  const filteredMovies = movies.filter((movie) => {
+    // Filter by release year
+    if (filters.year) {
+      const releaseYear = movie.release_date ? movie.release_date.slice(0, 4) : "";
+      if (releaseYear !== filters.year) {
+        return false;
+      }
+    }
+
+    // Filter by minimum rating
+    if (filters.rating) {
+      const minRating = parseInt(filters.rating);
+      if (movie.vote_average < minRating) {
+        return false;
+      }
+    }
+
+    // Genre filtering skipped for now (TMDb uses genre_ids)
+    return true;
+  });
+
+  // Sorting logic
+  let sortedMovies = [...filteredMovies];
+
+  if (filters.sort === "newest") {
+    sortedMovies.sort((a, b) => {
+      const dateA = a.release_date || "";
+      const dateB = b.release_date || "";
+      return dateB.localeCompare(dateA);
+    });
+  }
+
+  if (filters.sort === "highest") {
+    sortedMovies.sort((a, b) => b.vote_average - a.vote_average);
+  }
+
+  if (filters.sort === "alphabetical") {
+    sortedMovies.sort((a, b) => a.title.localeCompare(b.title));
+  }
+
+  // While fetching; show loader
   if (loading) {
     return <Loader />;
   }
 
+  // Render movie cards
   return (
-    /* Using SimpleGrid to show 3 movies per row */
     <SimpleGrid cols={3} spacing="lg">
-      {movies.map((movie) => (
+      {sortedMovies.map((movie) => (
         <Card key={movie.id} shadow="sm" padding="lg" radius="md" withBorder>
           <Card.Section>
-            {/* Poster image */}
             <Image src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title} height={300} />
           </Card.Section>
 
-          {/* Movie title & release year */}
           <Text weight={500} size="lg" mt="md">
-            {movie.title} ({movie.release_date?.slice(0, 4)})
+            {movie.title} ({movie.release_date ? movie.release_date.slice(0, 4) : "N/A"})
           </Text>
 
-          {/* TODO: Later connect this button to reviews page */}
-          <Button mt="md" fullWidth variant="gradient" gradient={{ from: "#7A7A7A", to: "#354760", deg: 90 }}>
-            View Reviews
+          <Button
+            component={Link}
+            to={`/spotlight/${movie.id}`}
+            mt="md"
+            fullWidth
+            variant="gradient"
+            gradient={{ from: "#7A7A7A", to: "#354760", deg: 90 }}
+          >
+            View Spotlight
           </Button>
         </Card>
       ))}

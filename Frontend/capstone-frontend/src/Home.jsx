@@ -1,16 +1,26 @@
 import { useState } from "react";
-import SearchBar from "./SearchBar.jsx";
-import MovieGrid from "./MovieGrid.jsx";
 import { Container, Title, Box } from "@mantine/core";
 
+import SearchBar from "./SearchBar.jsx";
+import MovieGrid from "./MovieGrid.jsx";
+import SidebarFilters from "./SidebarFilters.jsx";
+
 function Home() {
-  // State for search query (shared b/t SearchBar & MovieGrid)
-  // This keeps track of what the user types to filter movies
+  // State for the search query (this is shared b/t SearchBar & MovieGrid)
   const [query, setQuery] = useState("");
+
+  // State for selected filters (this is shared b/t SidebarFilters & MovieGrid)
+  const [filters, setFilters] = useState({});
+
+  // Update filters when the user applies them in the sidebar
+  function handleFilterChange(newFilters) {
+    setFilters(newFilters);
+  }
 
   return (
     <Box>
       <Container size="lg" py="xl">
+        {/* Search bar section */}
         <Box
           bg="white"
           p="xl"
@@ -20,18 +30,23 @@ function Home() {
             borderRadius: "8px",
           }}
         >
-          {/* SearchBar updates query state when typing */}
           <SearchBar query={query} setQuery={setQuery} />
         </Box>
 
-        <Title order={2} mt="xl" mb="md" fw={700} style={{ color: "#354760" }}>
-          {/* Title changes depending on search */}
-          {query ? `Results for "${query}"` : "Popular Movies"}
-        </Title>
+        {/* Layout: sidebar filters on the left, movie grid on the right */}
+        <Box style={{ display: "flex", gap: "2rem" }}>
+          {/* Sidebar with filter options */}
+          <SidebarFilters onFilterChange={handleFilterChange} />
 
-        {/* MovieGrid component: fetches movies based on the query state */}
-        {/* If the query is empty, it shows popular movies instead */}
-        <MovieGrid query={query} />
+          {/* Movie grid section */}
+          <Box style={{ flex: 1 }}>
+            <Title order={2} mt="xl" mb="md" fw={700} style={{ color: "#354760" }}>
+              {query ? `Results for "${query}"` : "Popular Movies"}
+            </Title>
+
+            <MovieGrid query={query} filters={filters} />
+          </Box>
+        </Box>
       </Container>
     </Box>
   );

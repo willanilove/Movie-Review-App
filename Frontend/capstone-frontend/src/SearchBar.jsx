@@ -2,9 +2,9 @@ import React from "react";
 import { Box, Flex, Title, Text, TextInput, Button, Group } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 
-// SearchBar now takes query & setQuery from Home
 function SearchBar({ query, setQuery }) {
-  // NOTE: query = current search text | setQuery = function to update it
+  // query = current search text
+  // setQuery = function that updates the search text
 
   return (
     <Flex
@@ -18,11 +18,12 @@ function SearchBar({ query, setQuery }) {
       gap="md"
       style={{ minHeight: "100px" }}
     >
-      {/* Left side: intro text */}
+      {/* Left side: heading & description */}
       <Box>
         <Title order={2} style={{ color: "white" }}>
           Ready for your next reel adventure?
         </Title>
+
         <Text color="#FFC72C" size="sm">
           Browse the latest movies, read reviews, and share your ratings.
         </Text>
@@ -40,20 +41,27 @@ function SearchBar({ query, setQuery }) {
           rightSection={<IconSearch size={16} />}
           size="md"
           w={300}
-          value={query} // controlled input (value comes from state in Home)
-          onChange={(event) => setQuery(event.currentTarget.value)} // update query when typing
+          value={query}
+          onChange={(event) => {
+            // Update the search text as the user types
+            setQuery(event.currentTarget.value);
+          }}
         />
+
         <Button
           radius={0}
           variant="gradient"
           gradient={{ from: "#354760", to: "#FFC72C", deg: 90 }}
           style={{
-            color: "white", // Gradient buttons usually look better with white text
+            color: "white",
             borderTopRightRadius: "6px",
             borderBottomRightRadius: "6px",
           }}
           size="md"
-          onClick={() => setQuery(query)}
+          onClick={() => {
+            // Button reuses the current query value
+            setQuery(query);
+          }}
         >
           Search
         </Button>

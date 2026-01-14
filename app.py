@@ -1,4 +1,5 @@
 from flask import Flask, request
+from flask_cors import CORS
 from models import Session, Base, engine, User, Movie, Review
 
 # When the app starts, check if the tables are there
@@ -7,7 +8,9 @@ from models import Session, Base, engine, User, Movie, Review
 Base.metadata.create_all(engine)
 
 app = Flask(__name__)
+CORS(app)
 
+# ------- BASIC ROUTES -------
 @app.route("/")
 def main_route():
     return "Welcome to the Movie Review API!"
@@ -121,6 +124,25 @@ def update_user_by_id(userId):
     response = user.to_dict()
     return response
 
+@app.route("/login", methods=["POST"])
+def login_route():
+    data = request.get_json()
+
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password:
+        return {"error": "Email and password are required"}, 400
+
+    session = Session()
+    user = session.query(User).filter_by(email=email, password=password).first()
+
+    if not user:
+        return {"error": "Invalid email or password"}, 401
+
+    return {"message": f"Welcome back, {user.username}!", "user": user.to_dict()}
+
+
 # ------- MOVIE ROUTES -------
 # Create a new movie
 # Needs JSON with title, poster_url & description
@@ -196,7 +218,66 @@ def delete_movie_route(movieId):
     response = movie.to_dict()
     return response
 
+# Get movie details from TMDb + reviews from our database
+@app.route("/api/movies/<int:movie_id>", methods=["GET"])
+def get_movie_details(movie_id):
+    session = Session()
+
+    # -----------------------------
+    # Step 1: Fetch movie details from TMDb
+    # -----------------------------
+    tmdb_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=cc3900e52f180a5eabb5a0f32bbc48e4&language=en-US"
+
+    import requests
+    tmdb_response = requests.get(tmdb_url)
+
+    if tmdb_response.status_code != 200:
+        return {"error": "Movie not found on TMDb"}, 404
+
+    tmdb_data = tmdb_response.json()
+
+    movie_data = {
+        "id": movie_id,
+        "title": tmdb_data.get("title"),
+        "poster_url": f"https://image.tmdb.org/t/p/w500{tmdb_data.get('poster_path')}",
+        "description": tmdb_data.get("overview"),
+        "year": tmdb_data.get("release_date", "")[:4]
+    }
+
+    # -----------------------------
+    # Step 2: Get all reviews for this movie from our database
+    # -----------------------------
+    reviews = session.query(Review).filter_by(movie_id=movie_id).all()
+
+    reviews_list = []
+    for r in reviews:
+        user = session.query(User).filter_by(id=r.user_id).first()
+
+        reviews_list.append({
+            "id": r.id,
+            "username": user.username if user else "Unknown",
+            "comment": r.comment,
+            "rating": r.rating
+        })
+
+    # -----------------------------
+    # Step 3: Return both movie details + reviews
+    # -----------------------------
+    return {
+        "movie": movie_data,
+        "reviews": reviews_list
+    }
+
+
+
 # ------- REVIEW ROUTES -------
+@app.route("/users/<int:user_id>/reviews", methods=["GET"])
+def get_user_reviews(user_id):
+    session = Session()
+    reviews = session.query(Review).filter_by(user_id=user_id).all()
+
+    return [review.to_dict() for review in reviews]
+
 # Create a new review
 # Needs JSON with user_id, movie_id, comment & rating
 @app.route("/reviews", methods=["POST"])

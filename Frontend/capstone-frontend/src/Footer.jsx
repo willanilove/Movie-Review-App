@@ -1,18 +1,16 @@
 import { IconBrandInstagram, IconBrandTwitter, IconBrandYoutube } from "@tabler/icons-react";
 import { ActionIcon, Anchor, Group } from "@mantine/core";
-// import { MantineLogo } from "@mantinex/mantine-logo";
 
-// Update later
+// Footer links
 const links = [
-  { link: "#", label: "Contact" },
-  { link: "#", label: "Privacy" },
-  { link: "#", label: "Blog" },
-  { link: "#", label: "Store" },
-  { link: "#", label: "Careers" },
+  { link: "#", label: "Contact Us" },
+  { link: "#", label: "Privacy Policy" },
+  { link: "#", label: "About ReelTalk" },
+  { link: "#", label: "Submit Feedback" },
 ];
 
 function Footer() {
-  // Map through links & create anchor tags
+  // Render each footer link as an anchor tag
   const items = links.map((link) => (
     <Anchor c="dimmed" key={link.label} href={link.link} lh={1} onClick={(event) => event.preventDefault()} size="sm">
       {link.label}
@@ -22,10 +20,10 @@ function Footer() {
   return (
     <div className="footer">
       <div className="inner">
-        {/* <MantineLogo size={28} /> */}
-
+        {/* Footer nav links */}
         <Group className="links">{items}</Group>
 
+        {/* Dummy social media icons */}
         <Group gap="xs" justify="flex-end" wrap="nowrap">
           <ActionIcon size="lg" variant="default" radius="xl">
             <IconBrandTwitter size={18} stroke={1.5} />
