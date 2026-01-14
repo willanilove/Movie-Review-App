@@ -1,4 +1,3 @@
-// theme.js
 import { createTheme } from "@mantine/core";
 
 // 1. Define the exact color value
