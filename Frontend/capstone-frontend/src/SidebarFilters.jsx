@@ -1,14 +1,32 @@
 import { useState } from "react";
-import { Select, TextInput, Button, Stack, Title, Divider } from "@mantine/core";
+import { Select, TextInput, Button, Stack, Title, Divider, Box, Text } from "@mantine/core";
 
 // This component shows a sidebar with filters for movies
 // The parent componenet will receive the selected filters
-function SidebarFilters({ onFilterChange }) {
+function SidebarFilters(props) {
+  const onFilterChange = props.onFilterChange;
+
   // State for each filter option
   const [genre, setGenre] = useState("");
   const [year, setYear] = useState("");
   const [rating, setRating] = useState("");
   const [sort, setSort] = useState("");
+
+  function handleGenreChange(value) {
+    setGenre(value);
+  }
+
+  function handleYearChange(event) {
+    setYear(event.target.value);
+  }
+
+  function handleRatingChange(value) {
+    setRating(value);
+  }
+
+  function handleSortChange(value) {
+    setSort(value);
+  }
 
   // When user clicks "Apply Filters", send all selected filters back to the parent component
   function handleApplyFilters() {
@@ -18,23 +36,54 @@ function SidebarFilters({ onFilterChange }) {
       rating: rating,
       sort: sort,
     };
+
     // This sends the filters back to the parent component
     onFilterChange(filters);
   }
 
+  // When user clicks "Clear Filters", reset all filters and notify parent
+  function handleClearFilters() {
+    setGenre(null);
+    setYear("");
+    setRating(null);
+    setSort(null);
+
+    // Send empty filters back to the parent component
+    onFilterChange({});
+  }
+
   // Sidebar layout is built via Mantine componenets
   return (
-    <div
+    <Box
+      p="md"
       style={{
+        backgroundColor: "#354760",
+        color: "white",
+        borderRadius: "8px",
+        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
         width: "250px",
-        padding: "1rem",
-        borderRight: "1px solid lightgray",
-        backgroundColor: "#f8f8f8",
+        // alignSelf: "flex-start",
       }}
     >
-      {/* Sidebar Title */}
-      <Title order={4}>Filter Movies</Title>
-      <Divider my="sm" />
+      {/* Sidebar Title & Subtitle */}
+      <Title order={4} style={{ color: "white", fontSize: "18px" }}>
+        Explore Popular Movies:
+      </Title>
+
+      {/* Subtitle is styled smaller & not bold */}
+      <Text
+        size="xs"
+        mt={2}
+        style={{
+          color: "#FFC72C",
+          fontWeight: 400,
+          textAlign: "center",
+        }}
+      >
+        Adjust filters to personalize your feed.
+      </Text>
+
+      <Divider my="sm" color="#FFC72C" />
 
       {/* Filter Inputs */}
       <Stack spacing="sm">
@@ -44,8 +93,10 @@ function SidebarFilters({ onFilterChange }) {
           placeholder="Select genre"
           data={["Action", "Comedy", "Drama", "Horror", "Romance"]}
           value={genre}
-          onChange={(value) => {
-            setGenre(value);
+          onChange={handleGenreChange}
+          styles={{
+            label: { color: "white" },
+            input: { backgroundColor: "white" },
           }}
         />
 
@@ -54,8 +105,10 @@ function SidebarFilters({ onFilterChange }) {
           label="Release Year"
           placeholder="e.g. 2024"
           value={year}
-          onChange={(event) => {
-            setYear(event.target.value);
+          onChange={handleYearChange}
+          styles={{
+            label: { color: "white" },
+            input: { backgroundColor: "white" },
           }}
         />
 
@@ -71,8 +124,10 @@ function SidebarFilters({ onFilterChange }) {
             { value: "5", label: "5 stars only" },
           ]}
           value={rating}
-          onChange={(value) => {
-            setRating(value);
+          onChange={handleRatingChange}
+          styles={{
+            label: { color: "white" },
+            input: { backgroundColor: "white" },
           }}
         />
 
@@ -86,8 +141,10 @@ function SidebarFilters({ onFilterChange }) {
             { value: "alphabetical", label: "A–Z" },
           ]}
           value={sort}
-          onChange={(value) => {
-            setSort(value);
+          onChange={handleSortChange}
+          styles={{
+            label: { color: "white" },
+            input: { backgroundColor: "white" },
           }}
         />
 
@@ -95,8 +152,13 @@ function SidebarFilters({ onFilterChange }) {
         <Button variant="gradient" gradient={{ from: "#354760", to: "#FFC72C", deg: 90 }} onClick={handleApplyFilters}>
           Apply Filters
         </Button>
+
+        {/* Clear Filters Button */}
+        <Button variant="gradient" gradient={{ from: "#354760", to: "#FFC72C" }} onClick={handleClearFilters}>
+          Clear Filters
+        </Button>
       </Stack>
-    </div>
+    </Box>
   );
 }
 

@@ -18,7 +18,10 @@ function Login({ mode = "login" }) {
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   // Validation rule: password must be at least 6 characters
-  const passwordIsValid = password.trim().length >= 6;
+  let passwordIsValid = false;
+  if (password.trim().length >= 6) {
+    passwordIsValid = true;
+  }
 
   // After login/signup direct the user to the homepage
   const navigate = useNavigate();
@@ -28,7 +31,7 @@ function Login({ mode = "login" }) {
     event.preventDefault();
 
     if (mode === "signup") {
-      // Build the user data obj
+      // Build the user data object
       const userData = {
         username: fullName,
         email: email,
@@ -38,17 +41,25 @@ function Login({ mode = "login" }) {
       try {
         const data = await registerUser(userData);
 
-        alert(`Welcome, ${data.username}! Your account was created.`);
+        const welcomeMessage = "Welcome, " + data.username + "! Your account was created.";
+        alert(welcomeMessage);
+
         navigate("/login");
 
-        // Clear the form
+        // Clear the form fields
         setFullName("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
       } catch (error) {
         console.log("Signup error:", error);
-        alert(error.error || "Signup failed.");
+
+        let message = "Signup failed.";
+        if (error && error.error) {
+          message = error.error;
+        }
+
+        alert(message);
       }
     } else {
       // Login Logic
@@ -58,20 +69,44 @@ function Login({ mode = "login" }) {
       };
 
       try {
-        // Send the data to the backend using axios
         const data = await loginUser(loginData);
 
-        alert(data.message);
+        let message = "Login successful!";
+        if (data && data.message) {
+          message = data.message;
+        }
+
+        alert(message);
 
         // Store user in local storage
         localStorage.setItem("user", JSON.stringify(data.user));
 
+        // Trigger global event for other components
+        window.dispatchEvent(new Event("userLoggedIn"));
+
         navigate("/");
       } catch (error) {
         console.log("Login error:", error);
-        alert(error.error || "Login failed.");
+
+        let message = "Login failed.";
+        if (error && error.error) {
+          message = error.error;
+        }
+
+        alert(message);
       }
     }
+  }
+
+  // Determine which title to show
+  let formTitle = "";
+  let formSubtext = "";
+
+  if (mode === "signup") {
+    formTitle = "Create an account";
+  } else {
+    formTitle = "Welcome Back";
+    formSubtext = "Sign in to your account";
   }
 
   return (
@@ -80,15 +115,15 @@ function Login({ mode = "login" }) {
         {/* Form Title */}
         {mode === "signup" ? (
           <Title order={3} mb="md" style={{ color: "#354760" }}>
-            Create an account
+            {formTitle}
           </Title>
         ) : (
           <Stack spacing="xs" mb="md" align="center">
             <Title order={2} style={{ color: "#354760" }}>
-              Welcome Back
+              {formTitle}
             </Title>
             <Text size="sm" color="dimmed">
-              Sign in to your account
+              {formSubtext}
             </Text>
           </Stack>
         )}
@@ -102,7 +137,9 @@ function Login({ mode = "login" }) {
                 placeholder="Your full name"
                 required
                 value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
+                onChange={(event) => {
+                  setFullName(event.target.value);
+                }}
                 styles={{ label: { color: "#354760" } }}
               />
             )}
@@ -113,7 +150,9 @@ function Login({ mode = "login" }) {
               placeholder="your@email.com"
               required
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                setEmail(event.target.value);
+              }}
               styles={{ label: { color: "#354760" } }}
               rightSection={
                 <Tooltip label="We store your data securely" withArrow>
@@ -134,9 +173,15 @@ function Login({ mode = "login" }) {
                 required
                 placeholder="Your password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                onFocus={() => setTooltipOpen(true)}
-                onBlur={() => setTooltipOpen(false)}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                }}
+                onFocus={() => {
+                  setTooltipOpen(true);
+                }}
+                onBlur={() => {
+                  setTooltipOpen(false);
+                }}
                 styles={{ label: { color: "#354760" } }}
               />
             </Tooltip>
@@ -148,7 +193,9 @@ function Login({ mode = "login" }) {
                 placeholder="Re-enter your password"
                 required
                 value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
+                onChange={(event) => {
+                  setConfirmPassword(event.target.value);
+                }}
                 styles={{ label: { color: "#354760" } }}
               />
             )}
@@ -168,13 +215,6 @@ function Login({ mode = "login" }) {
           </Stack>
         </form>
 
-        {/* Footer link */}
-        {/* <Text size="sm" mt="md" align="center">
-          Don’t have an account?{" "}
-          <Anchor component={Link} to="/signup" style={{ color: "#354760", fontWeight: 500 }}>
-            Sign Up
-          </Anchor>
-        </Text> */}
         {/* Footer link */}
         {mode === "signup" ? (
           <Text size="sm" mt="md" align="center">

@@ -1,28 +1,123 @@
 import { createTheme } from "@mantine/core";
 
-// 1. Define the exact color value
-const PRIMARY_COLOR_VALUE = "#5d5fef";
+// Brand colors for the site
+const brandBlue = "#354760"; // main text + brand color
+const brandGold = "#FFC72C"; // accent color (stars, gradients)
+const brandGray = "#354760"; // soft background gray for cards/sections
 
-// 2. Define the custom color palette with 10 shades
-const myPrimaryPalette = [
-  "#f3f0ff",
-  "#e5dbff",
-  "#d0bfff",
-  PRIMARY_COLOR_VALUE,
-  "#9775fa",
-  "#845ef7",
-  "#7950f2",
-  "#7048e8",
-  "#6741d9",
-  "#5f3dc4",
-];
-
-// 3. Create and export the theme object
+// Create & export the theme object
 export const theme = createTheme({
+  // Set the default primary color for Mantine components
+  primaryColor: "brandBlue",
+
+  // Register custom color palettes (Mantine requires 10 shades)
   colors: {
-    // Register the custom palette under the name 'my-primary'
-    "my-primary": myPrimaryPalette,
+    brandBlue: Array(10).fill(brandBlue),
+    brandGold: Array(10).fill(brandGold),
+    brandGray: Array(10).fill(brandGray),
   },
-  // Set the default primary color for all Mantine components
-  primaryColor: "my-primary",
+
+  // Global styles for raw HTML elements
+  // These styles apply to the <body> element across the entire app
+  globalStyles: {
+    body: {
+      color: brandBlue,
+      backgroundColor: "#ffffff",
+      fontFamily: "Inter, sans-serif",
+    },
+  },
+
+  // Heading styles
+  headings: {
+    fontFamily: "Inter, sans-serif",
+    sizes: {
+      h1: { color: brandBlue },
+      h2: { color: brandBlue },
+      h3: { color: brandBlue },
+      h4: { color: brandBlue },
+    },
+  },
+
+  // Default border radius for a softer UI
+  defaultRadius: "md",
+
+  // Component-level styling overrides
+  components: {
+    // Input labels (TextInput, Textarea, Select)
+    Input: {
+      styles: {
+        label: {
+          color: brandBlue,
+        },
+      },
+    },
+
+    // Select dropdown labels
+    Select: {
+      styles: {
+        label: {
+          color: brandBlue,
+        },
+      },
+    },
+
+    // TextInput labels
+    TextInput: {
+      styles: {
+        label: {
+          color: brandBlue,
+        },
+      },
+    },
+
+    // Textarea labels
+    Textarea: {
+      styles: {
+        label: {
+          color: brandBlue,
+        },
+      },
+    },
+
+    // Title component default color
+    Title: {
+      styles: {
+        root: {
+          color: brandBlue,
+        },
+      },
+    },
+
+    // Text component default color
+    Text: {
+      styles: {
+        root: {
+          color: brandBlue,
+
+          // allow inline overrides like color="#FFC72C" in my searchbar
+          "&[data-with-color]": {
+            color: "inherit",
+          },
+        },
+      },
+    },
+
+    // Button styling
+    Button: {
+      styles: {
+        root: {
+          fontWeight: 600,
+        },
+      },
+    },
+
+    // Card styling
+    Card: {
+      styles: {
+        root: {
+          backgroundColor: brandGray, // soft gray card background
+        },
+      },
+    },
+  },
 });

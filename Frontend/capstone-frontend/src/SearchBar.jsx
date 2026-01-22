@@ -2,9 +2,22 @@ import React from "react";
 import { Box, Flex, Title, Text, TextInput, Button, Group } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 
-function SearchBar({ query, setQuery }) {
+function SearchBar(props) {
   // query = current search text
   // setQuery = function that updates the search text
+
+  const query = props.query;
+  const setQuery = props.setQuery;
+
+  function handleInputChange(event) {
+    // Update the search text as the user types
+    setQuery(event.currentTarget.value);
+  }
+
+  function handleSearchClick() {
+    // Button reuses the current query value
+    setQuery(query);
+  }
 
   return (
     <Flex
@@ -12,6 +25,7 @@ function SearchBar({ query, setQuery }) {
       align="center"
       wrap="wrap"
       p="xl"
+      // bg="#a9a9a9"
       bg="#354760"
       radius="md"
       shadow="sm"
@@ -24,7 +38,7 @@ function SearchBar({ query, setQuery }) {
           Ready for your next reel adventure?
         </Title>
 
-        <Text color="#FFC72C" size="sm">
+        <Text c="#FFC72C" size="sm" fw={700}>
           Browse the latest movies, read reviews, and share your ratings.
         </Text>
       </Box>
@@ -37,15 +51,14 @@ function SearchBar({ query, setQuery }) {
           style={{
             borderTopLeftRadius: "6px",
             borderBottomLeftRadius: "6px",
+            border: "1px solid rgba(0, 0, 0, 0.2)", // needed to add subtle border for visibility
+            backgroundColor: "white",
           }}
           rightSection={<IconSearch size={16} />}
           size="md"
           w={300}
           value={query}
-          onChange={(event) => {
-            // Update the search text as the user types
-            setQuery(event.currentTarget.value);
-          }}
+          onChange={handleInputChange}
         />
 
         <Button
@@ -58,10 +71,7 @@ function SearchBar({ query, setQuery }) {
             borderBottomRightRadius: "6px",
           }}
           size="md"
-          onClick={() => {
-            // Button reuses the current query value
-            setQuery(query);
-          }}
+          onClick={handleSearchClick}
         >
           Search
         </Button>

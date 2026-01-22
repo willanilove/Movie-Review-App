@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, ForeignKey, DateTime, func
 from sqlalchemy.orm import declarative_base, mapped_column, Mapped, sessionmaker, relationship
 from datetime import datetime
 
+# Create a SQLite database named database.db
 engine = create_engine("sqlite:///database.db", echo=True)
 
 # Starting point for all models
@@ -27,11 +28,7 @@ class User(Base):
     # Don’t set it as unique b/c 2 users could choose the same password
     password: Mapped[str] = mapped_column(nullable=False)
 
-    # Relationship: 1 user can have many posts
-    # Connects the User table to the Post table
-    posts: Mapped[list["Post"]] = relationship("Post", back_populates="creator")
-
-    # to_dict turns a User into a dict
+    # Helper method: turns a User into a dict
     # handy when sending data back as JSON
     def to_dict(self):
         return {
@@ -41,40 +38,6 @@ class User(Base):
             "password": self.password,
         }
 
-# ------- POST MODEL -------
-class Post(Base):
-    __tablename__ = "posts"
-
-    # id is the primary key for posts.
-    id: Mapped[int] = mapped_column(primary_key=True)
-
-    # Title & content are required fields for each post.
-    title: Mapped[str] = mapped_column(nullable=False)
-    content: Mapped[str] = mapped_column(nullable=False)
-
-    # user_id links the post to a user
-    # It points to the id column in the users table
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-
-    # created_at = time when post is made
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now()
-    )
-
-    # Relationship: each post belongs to 1 user
-    creator: Mapped["User"] = relationship("User", back_populates="posts")
-
-    # Helper method: makes it easy to turn a Post object into a dict
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "content": self.content,
-            "user_id": self.user_id,
-            "created_at": self.created_at,
-        }
-
 # ------- MOVIE MODEL -------
 class Movie(Base):
     __tablename__ = "movies"
@@ -82,8 +45,9 @@ class Movie(Base):
     # id is the unique identifier for each movie
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    # Title is required & must be unique
-    title: Mapped[str] = mapped_column(nullable=False, unique=True)
+    # Title is required
+    # title: Mapped[str] = mapped_column(nullable=False, unique=True)
+    title: Mapped[str] = mapped_column(nullable=False)
 
     # Poster_url stores the image link for the movie poster
     poster_url: Mapped[str] = mapped_column(nullable=False)
@@ -113,7 +77,6 @@ class Review(Base):
     # movie_id links the review to a movie
     movie_id: Mapped[int] = mapped_column(nullable=False)
 
-
     # comment is the text of the review
     comment: Mapped[str] = mapped_column(nullable=False)
 
@@ -126,21 +89,22 @@ class Review(Base):
         server_default=func.now()
     )
 
-    # Relationship: each review belongs to 1 user & 1 movie
+    # Relationship: each review belongs to 1 user
     user = relationship("User")
-    # movie = relationship("Movie")
 
     # Helper method: turns a Review object into a dict
     def to_dict(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
+            "username": self.user.username if self.user else "Unknown",
             "movie_id": self.movie_id,
             "comment": self.comment,
             "rating": self.rating,
             "created_at": self.created_at,
         }
 
+# If this file is run directly, create the database and tables
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
     print("Database and tables created.")

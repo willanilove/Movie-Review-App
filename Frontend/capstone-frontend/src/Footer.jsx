@@ -5,21 +5,54 @@ import { ActionIcon, Anchor, Group } from "@mantine/core";
 const links = [
   { link: "#", label: "Contact Us" },
   { link: "#", label: "Privacy Policy" },
-  { link: "#", label: "About ReelTalk" },
+  { link: "/about", label: "About ReelTalk" },
   { link: "#", label: "Submit Feedback" },
 ];
 
 function Footer() {
   // Render each footer link as an anchor tag
-  const items = links.map((link) => (
-    <Anchor c="dimmed" key={link.label} href={link.link} lh={1} onClick={(event) => event.preventDefault()} size="sm">
-      {link.label}
-    </Anchor>
-  ));
+  // Only prevent default if the link is "#"
+  const items = [];
+
+  for (let i = 0; i < links.length; i++) {
+    const currentLink = links[i];
+
+    items.push(
+      <Anchor
+        key={currentLink.label}
+        href={currentLink.link}
+        c="#354760"
+        size="sm"
+        lh={1}
+        onClick={(event) => {
+          if (currentLink.link === "#") {
+            event.preventDefault();
+          }
+        }}
+      >
+        {currentLink.label}
+      </Anchor>
+    );
+  }
 
   return (
-    <div className="footer">
-      <div className="inner">
+    // Had to add paddingTop to reduce empty space above footer
+    <div
+      className="footer"
+      style={{
+        paddingTop: "8px",
+        paddingBottom: "16px",
+      }}
+    >
+      {/* Added flex layout to align links & icons side-by-side */}
+      <div
+        className="inner"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         {/* Footer nav links */}
         <Group className="links">{items}</Group>
 
@@ -28,9 +61,11 @@ function Footer() {
           <ActionIcon size="lg" variant="default" radius="xl">
             <IconBrandTwitter size={18} stroke={1.5} />
           </ActionIcon>
+
           <ActionIcon size="lg" variant="default" radius="xl">
             <IconBrandYoutube size={18} stroke={1.5} />
           </ActionIcon>
+
           <ActionIcon size="lg" variant="default" radius="xl">
             <IconBrandInstagram size={18} stroke={1.5} />
           </ActionIcon>
