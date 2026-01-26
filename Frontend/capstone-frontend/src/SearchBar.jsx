@@ -5,9 +5,10 @@ import { IconSearch } from "@tabler/icons-react";
 function SearchBar(props) {
   // query = current search text
   // setQuery = function that updates the search text
+  // onShowFilters = function to open mobile drawer
+  // isMobile = boolean to detect mobile view
 
-  const query = props.query;
-  const setQuery = props.setQuery;
+  const { query, setQuery, onShowFilters, isMobile } = props;
 
   function handleInputChange(event) {
     // Update the search text as the user types
@@ -15,8 +16,13 @@ function SearchBar(props) {
   }
 
   function handleSearchClick() {
-    // Button reuses the current query value
-    setQuery(query);
+    if (isMobile) {
+      // On mobile, open the filter drawer
+      onShowFilters();
+    } else {
+      // On desktop, reuse the current query value
+      setQuery(query);
+    }
   }
 
   return (
@@ -25,7 +31,6 @@ function SearchBar(props) {
       align="center"
       wrap="wrap"
       p="xl"
-      // bg="#a9a9a9"
       bg="#354760"
       radius="md"
       shadow="sm"
@@ -51,7 +56,7 @@ function SearchBar(props) {
           style={{
             borderTopLeftRadius: "6px",
             borderBottomLeftRadius: "6px",
-            border: "1px solid rgba(0, 0, 0, 0.2)", // needed to add subtle border for visibility
+            border: "1px solid rgba(0, 0, 0, 0.2)",
             backgroundColor: "white",
           }}
           rightSection={<IconSearch size={16} />}
@@ -73,7 +78,7 @@ function SearchBar(props) {
           size="md"
           onClick={handleSearchClick}
         >
-          Search
+          {isMobile ? "Show Filters" : "Search"}
         </Button>
       </Group>
     </Flex>

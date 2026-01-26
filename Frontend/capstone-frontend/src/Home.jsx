@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Container, Title, Box } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 
 import SearchBar from "./SearchBar.jsx";
 import MovieGrid from "./MovieGrid.jsx";
 import SidebarFilters from "./SidebarFilters.jsx";
+import MobileFilters from "./MobileFilters.jsx";
 
 function Home() {
   // State for the search query (this is shared b/t SearchBar & MovieGrid)
@@ -12,6 +14,9 @@ function Home() {
   // State for selected filters (this is shared b/t SidebarFilters & MovieGrid)
   const [filters, setFilters] = useState({});
 
+  // State to control mobile drawer visibility
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   // useEffect(() => {
   //   document.body.classList.add("home-page");
   //   return () => {
@@ -19,7 +24,7 @@ function Home() {
   //   };
   // }, []);
 
-  // Update filters when the user applies them in the sidebar
+  // Update filters when the user applies them in the sidebar or mobile drawer
   function handleFilterChange(newFilters) {
     setFilters(newFilters);
   }
@@ -29,6 +34,8 @@ function Home() {
   if (query !== "") {
     showResultsTitle = true;
   }
+
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   return (
     <Box
@@ -49,13 +56,22 @@ function Home() {
             borderRadius: "8px",
           }}
         >
-          <SearchBar query={query} setQuery={setQuery} />
+          <SearchBar query={query} setQuery={setQuery} onShowFilters={() => setDrawerOpen(true)} isMobile={isMobile} />
         </Box>
 
         {/* Layout: sidebar filters on the left, movie grid on the right */}
         <Box style={{ display: "flex", gap: "2rem", marginTop: "2rem" }}>
-          {/* Sidebar with filter options */}
-          <SidebarFilters onFilterChange={handleFilterChange} />
+          {/* Sidebar with filter options (DESKTOP ONLY) */}
+          {!isMobile && <SidebarFilters onFilterChange={handleFilterChange} />}
+
+          {/* Mobile filter drawer (MOBILE ONLY) */}
+          {isMobile && (
+            <MobileFilters
+              opened={drawerOpen}
+              onClose={() => setDrawerOpen(false)}
+              onFilterChange={handleFilterChange}
+            />
+          )}
 
           {/* Movie grid section */}
           <Box style={{ flex: 1 }}>

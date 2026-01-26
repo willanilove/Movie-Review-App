@@ -52,7 +52,7 @@ function MovieGrid({ query, filters }) {
 
             try {
               const castRes = await fetch(
-                "https://api.themoviedb.org/3/movie/" + movie.id + "/credits?api_key=" + API_KEY
+                "https://api.themoviedb.org/3/movie/" + movie.id + "/credits?api_key=" + API_KEY,
               );
               const castData = await castRes.json();
 
@@ -140,13 +140,13 @@ function MovieGrid({ query, filters }) {
         stars.push(
           <span key={i} style={{ color: "#FFC72C" }}>
             ★
-          </span>
+          </span>,
         );
       } else {
         stars.push(
           <span key={i} style={{ color: "#ccc" }}>
             ★
-          </span>
+          </span>,
         );
       }
     }
@@ -201,7 +201,14 @@ function MovieGrid({ query, filters }) {
       </Modal>
 
       {/* Movie cards */}
-      <SimpleGrid cols={3} spacing="lg">
+      <SimpleGrid
+        spacing="lg"
+        cols={3}
+        breakpoints={[
+          { maxWidth: 980, cols: 2 },
+          { maxWidth: 640, cols: 1 },
+        ]}
+      >
         {sortedMovies.map((movie) => {
           // Compute year separately
           let year = "N/A";
@@ -278,7 +285,7 @@ function MovieGrid({ query, filters }) {
                     let trailerKeyLocal = null;
                     try {
                       const res = await fetch(
-                        "https://api.themoviedb.org/3/movie/" + movie.id + "/videos?api_key=" + API_KEY
+                        "https://api.themoviedb.org/3/movie/" + movie.id + "/videos?api_key=" + API_KEY,
                       );
                       const data = await res.json();
 
