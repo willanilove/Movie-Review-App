@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Flex, Title, Text, TextInput, Button, Group } from "@mantine/core";
+import { Box, Flex, Title, Text, TextInput, Button } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 
 function SearchBar(props) {
@@ -27,60 +27,73 @@ function SearchBar(props) {
 
   return (
     <Flex
+      direction={isMobile ? "column" : "row"}
       justify="space-between"
-      align="center"
+      align={isMobile ? "stretch" : "center"}
       wrap="wrap"
-      p="xl"
+      p={isMobile ? "md" : "xl"}
       bg="#354760"
       radius="md"
       shadow="sm"
-      gap="md"
-      style={{ minHeight: "100px" }}
+      gap={isMobile ? "sm" : "md"}
+      style={{ minHeight: isMobile ? "auto" : "100px" }}
     >
-      {/* Left side: heading & description */}
-      <Box>
-        <Title order={2} style={{ color: "white" }}>
+      {/* Heading & description */}
+      <Box ta="center">
+        <Title order={isMobile ? 4 : 2} ta="center" style={{ color: "white" }}>
           Ready for your next reel adventure?
         </Title>
 
-        <Text c="#FFC72C" size="sm" fw={700}>
-          Browse the latest movies, read reviews, and share your ratings.
+        <Text c="#FFC72C" size={isMobile ? "xs" : "sm"} fw={700} mt={4} ta="center">
+          Browse movies, reviews, and share your ratings.
         </Text>
       </Box>
 
-      {/* Right side: search input & button */}
-      <Group gap={0}>
-        <TextInput
-          placeholder="Search for a movie title..."
-          radius={0}
-          style={{
-            borderTopLeftRadius: "6px",
-            borderBottomLeftRadius: "6px",
-            border: "1px solid rgba(0, 0, 0, 0.2)",
-            backgroundColor: "white",
-          }}
-          rightSection={<IconSearch size={16} />}
-          size="md"
-          w={300}
-          value={query}
-          onChange={handleInputChange}
-        />
+      {/* Search input */}
+      <TextInput
+        placeholder="Search for a movie title..."
+        radius="md"
+        mt={isMobile ? "sm" : 0}
+        rightSection={<IconSearch size={16} />}
+        size="md"
+        value={query}
+        onChange={handleInputChange}
+        w={isMobile ? "100%" : 300}
+      />
 
+      {/* Mobile buttons */}
+      {isMobile ? (
+        <Flex gap="sm" mt="sm">
+          <Button
+            fullWidth
+            variant="gradient"
+            gradient={{ from: "#354760", to: "#FFC72C", deg: 90 }}
+            onClick={handleSearchClick}
+          >
+            Search
+          </Button>
+
+          <Button
+            fullWidth
+            variant="gradient"
+            gradient={{ from: "#354760", to: "#FFC72C", deg: 90 }}
+            onClick={onShowFilters}
+          >
+            Show Filters
+          </Button>
+        </Flex>
+      ) : (
+        /* Desktop button stays the same */
         <Button
-          radius={0}
+          radius="md"
           variant="gradient"
           gradient={{ from: "#354760", to: "#FFC72C", deg: 90 }}
-          style={{
-            color: "white",
-            borderTopRightRadius: "6px",
-            borderBottomRightRadius: "6px",
-          }}
           size="md"
           onClick={handleSearchClick}
         >
-          {isMobile ? "Show Filters" : "Search"}
+          Search
         </Button>
-      </Group>
+      )}
     </Flex>
   );
 }

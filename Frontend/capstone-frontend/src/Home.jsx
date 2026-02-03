@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, Title, Box } from "@mantine/core";
+import { Container, Title, Box, Text, TextInput, Button, Group, Stack } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 
 import SearchBar from "./SearchBar.jsx";
@@ -46,25 +46,102 @@ function Home() {
       }}
     >
       <Container size="lg" py="xl">
-        {/* Search bar section */}
-        <Box
-          bg="#354760"
-          p="xl"
-          mb="xl"
-          style={{
-            boxShadow: "0 4px 12px rgba(53, 71, 96, 0.3)",
-            borderRadius: "8px",
-          }}
-        >
-          <SearchBar query={query} setQuery={setQuery} onShowFilters={() => setDrawerOpen(true)} isMobile={isMobile} />
-        </Box>
+        {/* Mobile Hero Section */}
+        {isMobile && (
+          <Box
+            bg="#354760"
+            p="xl"
+            mb="xl"
+            style={{
+              boxShadow: "0 4px 12px rgba(53, 71, 96, 0.3)",
+              borderRadius: "8px",
+            }}
+          >
+            <Stack spacing="xs" align="center">
+              <Title order={2} ta="center" style={{ color: "white" }}>
+                Ready for your next reel adventure?
+              </Title>
+              <Text size="sm" fw={700} ta="center" style={{ color: "#FFC72C" }}>
+                Browse the latest movies, read reviews, and share your ratings.
+              </Text>
+
+              <TextInput
+                placeholder="Search for a movie title..."
+                radius="md"
+                size="md"
+                value={query}
+                onChange={(event) => setQuery(event.currentTarget.value)}
+              />
+              <Group position="center" mt="md">
+                <Button
+                  radius="md"
+                  size="md"
+                  variant="gradient"
+                  gradient={{ from: "#354760", to: "#FFC72C", deg: 90 }}
+                  onClick={() => {}}
+                >
+                  Search
+                </Button>
+
+                <Button
+                  radius="md"
+                  size="md"
+                  variant="gradient"
+                  gradient={{ from: "#354760", to: "#FFC72C", deg: 90 }}
+                  onClick={() => setDrawerOpen(true)}
+                >
+                  Show Filters
+                </Button>
+              </Group>
+
+              {/* Clear Filters link (MOBILE ONLY) */}
+              <Text
+                size="sm"
+                style={{ color: "white", textDecoration: "underline", cursor: "pointer", marginTop: "8px" }}
+                onClick={() => {
+                  setFilters({});
+                  setQuery("");
+                }}
+              >
+                Clear Filters
+              </Text>
+            </Stack>
+          </Box>
+        )}
+
+        {/* Search bar section (DESKTOP ONLY) */}
+        {!isMobile && (
+          <Box
+            bg="#354760"
+            p="xl"
+            mb="xl"
+            style={{
+              boxShadow: "0 4px 12px rgba(53, 71, 96, 0.3)",
+              borderRadius: "8px",
+            }}
+          >
+            <SearchBar
+              query={query}
+              setQuery={setQuery}
+              onShowFilters={() => setDrawerOpen(true)}
+              isMobile={isMobile}
+            />
+          </Box>
+        )}
 
         {/* Layout: sidebar filters on the left, movie grid on the right */}
-        <Box style={{ display: "flex", gap: "2rem", marginTop: "2rem" }}>
+        <Box
+          style={{
+            display: "flex",
+            gap: isMobile ? "1rem" : "2rem",
+            marginTop: isMobile ? "1rem" : "2rem",
+            flexDirection: isMobile ? "column" : "row",
+          }}
+        >
           {/* Sidebar with filter options (DESKTOP ONLY) */}
           {!isMobile && <SidebarFilters onFilterChange={handleFilterChange} />}
 
-          {/* Mobile filter drawer (MOBILE ONLY) */}
+          {/* Mobile filter drawer */}
           {isMobile && (
             <MobileFilters
               opened={drawerOpen}
@@ -91,7 +168,8 @@ function Home() {
               </Title>
             )}
 
-            <MovieGrid query={query} filters={filters} />
+            {/* Pass isMobile to MovieGrid to control the layout */}
+            <MovieGrid query={query} filters={filters} isMobile={isMobile} />
           </Box>
         </Box>
       </Container>
