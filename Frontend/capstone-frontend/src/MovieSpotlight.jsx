@@ -31,7 +31,7 @@ function MovieSpotlight() {
   // Fetch movie & cast when component loads
   useEffect(() => {
     // Fetch movie & reviews from backend
-    fetch("http://127.0.0.1:5001/api/movies/" + id)
+    fetch("https://reeltalk-capstone.onrender.com/api/movies/" + id)
       .then((res) => res.json())
       .then((data) => {
         if (data) {
@@ -70,7 +70,7 @@ function MovieSpotlight() {
       stars.push(
         <span key={i} style={{ color: i <= rounded ? "#FFC72C" : "#ccc", fontSize: "20px" }}>
           ★
-        </span>
+        </span>,
       );
     }
     return stars;
