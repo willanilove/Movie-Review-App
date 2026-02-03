@@ -76,19 +76,15 @@ function About() {
               }}
             />
 
-            <List spacing="md" size="lg">
-              <List.Item style={{ color: "#354760" }}>🎥 Submit and review films across all genres</List.Item>
-
-              <List.Item style={{ color: "#354760" }}>
-                🌟 Share honest opinions and spark meaningful discussions
-              </List.Item>
-
-              <List.Item style={{ color: "#354760" }}>🎬 Explore curated recommendations and trending titles</List.Item>
-
-              <List.Item style={{ color: "#354760" }}>
-                🗣️ Celebrate the art of cinema with a vibrant, inclusive community
-              </List.Item>
-            </List>
+            <div style={{ textAlign: "left", display: "inline-block", color: "#354760", lineHeight: 1.7 }}>
+              🎥 Submit and review films across all genres
+              <br />
+              🌟 Share honest opinions and spark meaningful discussions
+              <br />
+              🎬 Explore curated recommendations and trending titles
+              <br />
+              🗣️ Celebrate the art of cinema with a vibrant, inclusive community
+            </div>
           </Paper>
 
           <Text size="lg" style={{ color: "#354760", lineHeight: 1.7 }}>

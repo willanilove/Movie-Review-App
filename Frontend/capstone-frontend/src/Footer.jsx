@@ -31,7 +31,7 @@ function Footer() {
         }}
       >
         {currentLink.label}
-      </Anchor>
+      </Anchor>,
     );
   }
 
@@ -54,7 +54,19 @@ function Footer() {
         }}
       >
         {/* Footer nav links */}
-        <Group className="links">{items}</Group>
+        <Group
+          className="links"
+          gap="md"
+          justify="center"
+          wrap="wrap"
+          style={{
+            textAlign: "center",
+            flex: "1 1 100%",
+            marginBottom: "8px",
+          }}
+        >
+          {items}
+        </Group>
 
         {/* Dummy social media icons */}
         <Group gap="xs" justify="flex-end" wrap="nowrap">
